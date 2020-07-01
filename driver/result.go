@@ -1,9 +1,12 @@
 package driver
 
-import "errors"
+import (
+	"cloud.google.com/go/bigquery"
+	"errors"
+)
 
 type bigQueryResult struct {
-	statement bigQueryStatement
+	rowIterator *bigquery.RowIterator
 }
 
 func (result bigQueryResult) LastInsertId() (int64, error) {

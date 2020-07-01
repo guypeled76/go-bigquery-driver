@@ -3,6 +3,7 @@ package dialect
 import (
 	"errors"
 	"fmt"
+	_ "github.com/guypeled76/go-bigquery-driver/driver"
 	"github.com/guypeled76/go-bigquery-driver/processor"
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
@@ -110,7 +111,7 @@ func (b bigQueryDialect) ModifyColumn(tableName string, columnName string, colum
 }
 
 func (b bigQueryDialect) LimitAndOffsetSQL(limit, offset interface{}) (string, error) {
-	return "", unsupportedError("ModifyColumn")
+	return "", nil
 }
 
 func (b bigQueryDialect) SelectFromDummyTable() string {
