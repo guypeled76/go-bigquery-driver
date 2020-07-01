@@ -1,10 +1,13 @@
 package driver
 
 import (
+	"cloud.google.com/go/bigquery"
 	"database/sql/driver"
 )
 
 type bigQueryConnection struct {
+	client *bigquery.Client
+	config bigQueryConfig
 }
 
 func (connection *bigQueryConnection) Prepare(query string) (driver.Stmt, error) {

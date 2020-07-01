@@ -24,7 +24,7 @@ func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, err
 		return result, err
 	}
 
-	result = &bigQueryResult{}
+	result = &bigQueryResult{statement}
 
 	return result, nil
 }
@@ -35,7 +35,7 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 		return rows, err
 	}
 
-	rows = &bigQueryRows{}
+	rows = &bigQueryRows{statement}
 
 	return rows, nil
 }

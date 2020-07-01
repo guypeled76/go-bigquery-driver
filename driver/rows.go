@@ -5,6 +5,7 @@ import (
 )
 
 type bigQueryRows struct {
+	statement bigQueryStatement
 }
 
 func (rows bigQueryRows) Columns() []string {
