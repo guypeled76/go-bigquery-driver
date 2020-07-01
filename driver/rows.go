@@ -3,6 +3,8 @@ package driver
 import (
 	"cloud.google.com/go/bigquery"
 	"database/sql/driver"
+	"google.golang.org/api/iterator"
+	"io"
 )
 
 type bigQueryRows struct {
@@ -23,6 +25,11 @@ func (rows bigQueryRows) Close() error {
 
 func (rows bigQueryRows) Next(dest []driver.Value) error {
 	values, err := rows.next()
+
+	if err == iterator.Done {
+		return io.EOF
+	}
+
 	if err != nil {
 		return err
 	}
