@@ -27,8 +27,7 @@ func (b bigQueryDialect) SetDB(db gorm.SQLCommon) {
 }
 
 func (b bigQueryDialect) BindVar(i int) string {
-	unsupportedPanic("BindVar")
-	return ""
+	return "?"
 }
 
 func (b bigQueryDialect) Quote(key string) string {

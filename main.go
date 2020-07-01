@@ -17,7 +17,8 @@ func main() {
 	}
 
 	var projects []RunTestProject
-	err = db.Find(RunTestProject{}).Error
+
+	err = db.Not("Name", "").Find(RunTestProject{}).Error
 	if err != nil {
 		log.Fatal(err)
 	}
