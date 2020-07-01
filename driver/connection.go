@@ -10,6 +10,8 @@ import (
 type bigQueryConnection struct {
 	client *bigquery.Client
 	config bigQueryConfig
+	closed bool
+	bad    bool
 }
 
 func (connection *bigQueryConnection) Ping(ctx context.Context) error {
@@ -43,8 +45,14 @@ func (connection *bigQueryConnection) Prepare(query string) (driver.Stmt, error)
 }
 
 func (connection *bigQueryConnection) Close() error {
-
-	return nil
+	if connection.closed {
+		return nil
+	}
+	if connection.bad {
+		return driver.ErrBadConn
+	}
+	connection.closed = true
+	return connection.client.Close()
 }
 
 func (connection *bigQueryConnection) Begin() (driver.Tx, error) {
