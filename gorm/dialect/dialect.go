@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-const DialectName = "bigquery"
+const Name = "bigquery"
 
 type bigQueryDialect struct {
 	db gorm.SQLCommon
 }
 
 func (b bigQueryDialect) GetName() string {
-	return DialectName
+	return Name
 }
 
 func (b bigQueryDialect) SetDB(db gorm.SQLCommon) {
@@ -86,11 +86,11 @@ func (b bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 }
 
 func (b bigQueryDialect) HasIndex(tableName string, indexName string) bool {
-	return false
+	return processor.HasIndex(b.db, tableName, indexName)
 }
 
 func (b bigQueryDialect) HasForeignKey(tableName string, foreignKeyName string) bool {
-	return false
+	return processor.HasForeignKey(b.db, tableName, foreignKeyName)
 }
 
 func (b bigQueryDialect) RemoveIndex(tableName string, indexName string) error {
