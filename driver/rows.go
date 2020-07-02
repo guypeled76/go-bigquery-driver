@@ -11,7 +11,7 @@ type bigQueryRows struct {
 	rowIterator *bigquery.RowIterator
 }
 
-func (rows bigQueryRows) Columns() []string {
+func (rows *bigQueryRows) Columns() []string {
 	var columns []string
 	for _, column := range rows.rowIterator.Schema {
 		columns = append(columns, column.Name)
@@ -19,11 +19,11 @@ func (rows bigQueryRows) Columns() []string {
 	return columns
 }
 
-func (rows bigQueryRows) Close() error {
+func (rows *bigQueryRows) Close() error {
 	return nil
 }
 
-func (rows bigQueryRows) Next(dest []driver.Value) error {
+func (rows *bigQueryRows) Next(dest []driver.Value) error {
 	values, err := rows.next()
 
 	if err == iterator.Done {
@@ -34,12 +34,17 @@ func (rows bigQueryRows) Next(dest []driver.Value) error {
 		return err
 	}
 
-	dest[0] = values
+	var length = len(values)
+	for i := range dest {
+		if i < length {
+			dest[i] = values[i]
+		}
+	}
 
 	return nil
 }
 
-func (rows bigQueryRows) next() ([]bigquery.Value, error) {
+func (rows *bigQueryRows) next() ([]bigquery.Value, error) {
 	var values []bigquery.Value
 	err := rows.rowIterator.Next(&values)
 	if err != nil {

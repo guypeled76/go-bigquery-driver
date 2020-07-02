@@ -18,12 +18,12 @@ func main() {
 
 	var projects []RunTestProject
 
-	err = db.Not("Name", "").Find(RunTestProject{}).Error
+	err = db.Not("Name", "").Find(&projects).Error
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, project := range projects {
-		log.Println(project)
+		log.Println(project.Name)
 	}
 
 	defer db.Close()
