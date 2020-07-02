@@ -7,7 +7,7 @@ import (
 )
 
 type RunTestProject struct {
-	Name string
+	Name string `gorm:"column:Name"`
 }
 
 func main() {
