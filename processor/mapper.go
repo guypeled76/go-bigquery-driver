@@ -21,3 +21,7 @@ func HasColumn(db gorm.SQLCommon, tableName string, columnName string) bool {
 func ModifyColumn(db gorm.SQLCommon, tableName string, columnName string, columnType string) error {
 	return execute(db, modifyColumn, tableName, columnName, columnType)
 }
+
+func RemoveIndex(db gorm.SQLCommon, tableName string, indexName string) error {
+	return execute(db, removeIndex, tableName, indexName)
+}

@@ -1,7 +1,6 @@
 package dialect
 
 import (
-	"errors"
 	"fmt"
 	_ "github.com/guypeled76/go-bigquery-driver/driver"
 	"github.com/guypeled76/go-bigquery-driver/processor"
@@ -94,7 +93,7 @@ func (b bigQueryDialect) HasForeignKey(tableName string, foreignKeyName string) 
 }
 
 func (b bigQueryDialect) RemoveIndex(tableName string, indexName string) error {
-	return unsupportedError("RemoveIndex")
+	return processor.RemoveIndex(b.db, tableName, indexName)
 }
 
 func (b bigQueryDialect) HasTable(tableName string) bool {
@@ -156,28 +155,4 @@ func (b *bigQueryDialect) fieldCanAutoIncrement(field *gorm.StructField) bool {
 		return strings.ToLower(value) != "false"
 	}
 	return field.IsPrimaryKey
-}
-
-func unsupportedError(feature string) error {
-	return errors.New(unsupportedMessage(feature))
-}
-
-func unsupportedPanic(feature string) {
-	panic(unsupportedMessage(feature))
-}
-
-func unsupportedMessage(feature string) string {
-	return fmt.Sprintf("BigQuery GORM dialect doesn't support '%s'", feature)
-}
-
-func uninitializedError(feature string) error {
-	return errors.New(uninitializedMessage(feature))
-}
-
-func uninitializedPanic(feature string) {
-	panic(uninitializedMessage(feature))
-}
-
-func uninitializedMessage(feature string) string {
-	return fmt.Sprintf("BigQuery GORM dialect '%s' was called before initializing db", feature)
 }

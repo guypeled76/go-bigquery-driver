@@ -14,5 +14,5 @@ func (result bigQueryResult) LastInsertId() (int64, error) {
 }
 
 func (result bigQueryResult) RowsAffected() (int64, error) {
-	panic("implement me")
+	return 0, errors.New("RowsAffected is not supported")
 }
