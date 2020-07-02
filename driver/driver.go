@@ -56,7 +56,7 @@ func configFromUri(uri string) (*bigQueryConfig, error) {
 	if len(fields) == 2 {
 		return &bigQueryConfig{
 			projectID: fields[0],
-			location:  nil,
+			location:  "",
 			dataSet:   fields[1],
 		}, nil
 	}
