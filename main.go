@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"log"
 )
 
@@ -11,6 +12,9 @@ type RunTestProject struct {
 }
 
 func main() {
+
+	logrus.SetLevel(logrus.DebugLevel)
+
 	db, err := gorm.Open("bigquery", "bigquery://unity-rd-perf-test-data-prd/location/perf_test_results")
 	if err != nil {
 		log.Fatal(err)
@@ -18,7 +22,23 @@ func main() {
 
 	var projects []RunTestProject
 
-	err = db.Not("Name", "").Find(&projects).Error
+	err = db.Not("Name", []string{"", "2D"}).Limit(2).Find(&projects).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, project := range projects {
+		log.Println(project.Name)
+	}
+
+	err = db.Not("Name", []string{"", "2D"}).Limit(2).Offset(3).Find(&projects).Error
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, project := range projects {
+		log.Println(project.Name)
+	}
+
+	err = db.Not("Name", []string{"", "2D"}).Find(&projects).Error
 	if err != nil {
 		log.Fatal(err)
 	}

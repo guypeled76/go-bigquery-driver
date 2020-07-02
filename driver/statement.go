@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"github.com/guypeled76/go-bigquery-driver/processor"
+	"github.com/sirupsen/logrus"
 )
 
 type bigQueryStatement struct {
@@ -68,6 +69,8 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 
 func (statement bigQueryStatement) buildQuery(args []driver.Value) (*bigquery.Query, error) {
 
+	logrus.Debugf("query:%s", statement.query)
+
 	query, err := statement.connection.query(statement.query)
 	if err != nil {
 		return nil, err
@@ -96,11 +99,16 @@ func (statement bigQueryStatement) buildParameters(args []driver.Value) ([]bigqu
 func buildParameter(arg driver.Value, parameters []bigquery.QueryParameter) []bigquery.QueryParameter {
 	namedValue, ok := arg.(driver.NamedValue)
 	if ok && namedValue.Name != "" {
+
+		logrus.Debugf("-param:%s=%s", namedValue.Name, namedValue.Value)
+
 		return append(parameters, bigquery.QueryParameter{
 			Name:  namedValue.Name,
 			Value: namedValue.Value,
 		})
 	}
+
+	logrus.Debugf("-param:%s", arg)
 
 	return append(parameters, bigquery.QueryParameter{
 		Value: arg,
