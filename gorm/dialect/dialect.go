@@ -110,12 +110,17 @@ func (b bigQueryDialect) ModifyColumn(tableName string, columnName string, colum
 }
 
 func (b bigQueryDialect) LimitAndOffsetSQL(limit, offset interface{}) (string, error) {
-	if limit != -1 && offset == -1 {
+
+	if isValidLimitOrOffset(limit) && !isValidLimitOrOffset(offset) {
 		return fmt.Sprintf(" LIMIT %d", limit), nil
-	} else if limit != -1 && offset != -1 {
+	} else if isValidLimitOrOffset(limit) && isValidLimitOrOffset(offset) {
 		return fmt.Sprintf(" LIMIT %d OFFSET %d", limit, offset), nil
 	}
 	return "", nil
+}
+
+func isValidLimitOrOffset(value interface{}) bool {
+	return value != -1 && value != nil
 }
 
 func (b bigQueryDialect) SelectFromDummyTable() string {

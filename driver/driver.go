@@ -45,13 +45,22 @@ func configFromUri(uri string) (*bigQueryConfig, error) {
 	path := strings.TrimPrefix(uri, "bigquery://")
 	fields := strings.Split(path, "/")
 
-	if len(fields) != 3 {
-		return nil, fmt.Errorf("invalid connection string : %s", uri)
+	if len(fields) == 3 {
+		return &bigQueryConfig{
+			projectID: fields[0],
+			location:  fields[1],
+			dataSet:   fields[2],
+		}, nil
 	}
 
-	return &bigQueryConfig{
-		projectID: fields[0],
-		location:  fields[1],
-		dataSet:   fields[2],
-	}, nil
+	if len(fields) == 2 {
+		return &bigQueryConfig{
+			projectID: fields[0],
+			location:  nil,
+			dataSet:   fields[1],
+		}, nil
+	}
+
+	return nil, fmt.Errorf("invalid connection string : %s", uri)
+
 }
