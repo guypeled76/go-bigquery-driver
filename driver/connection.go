@@ -8,15 +8,24 @@ import (
 )
 
 type bigQueryConnection struct {
-	client *bigquery.Client
-	config bigQueryConfig
-	closed bool
-	bad    bool
+	client  *bigquery.Client
+	config  bigQueryConfig
+	closed  bool
+	bad     bool
+	dataset *bigquery.Dataset
+}
+
+func (connection *bigQueryConnection) GetDataset() *bigquery.Dataset {
+	if connection.dataset != nil {
+		return connection.dataset
+	}
+	connection.dataset = connection.client.Dataset(connection.config.dataSet)
+	return connection.dataset
 }
 
 func (connection *bigQueryConnection) Ping(ctx context.Context) error {
 
-	dataset := connection.client.Dataset(connection.config.dataSet)
+	dataset := connection.GetDataset()
 	if dataset == nil {
 		return fmt.Errorf("faild to ping using '%s' dataset", connection.config.dataSet)
 	}

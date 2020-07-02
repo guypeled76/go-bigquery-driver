@@ -30,7 +30,7 @@ func (statement bigQueryStatement) QueryContext(ctx context.Context, args []driv
 }
 
 func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, error) {
-	result, err := processor.Exec(statement.query, args)
+	result, err := processor.Exec(statement.connection, statement.query, args)
 	if err != nil || result != nil {
 		return result, err
 	}
@@ -49,7 +49,7 @@ func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, err
 }
 
 func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, error) {
-	rows, err := processor.Query(statement.query, args)
+	rows, err := processor.Query(statement.connection, statement.query, args)
 	if err != nil || rows != nil {
 		return rows, err
 	}

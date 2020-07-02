@@ -17,23 +17,23 @@ type bigQueryDialect struct {
 	db gorm.SQLCommon
 }
 
-func (b bigQueryDialect) GetName() string {
+func (b *bigQueryDialect) GetName() string {
 	return Name
 }
 
-func (b bigQueryDialect) SetDB(db gorm.SQLCommon) {
+func (b *bigQueryDialect) SetDB(db gorm.SQLCommon) {
 	b.db = db
 }
 
-func (b bigQueryDialect) BindVar(i int) string {
+func (b *bigQueryDialect) BindVar(i int) string {
 	return "?"
 }
 
-func (b bigQueryDialect) Quote(key string) string {
+func (b *bigQueryDialect) Quote(key string) string {
 	return fmt.Sprintf("`%s`", key)
 }
 
-func (b bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
+func (b *bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 	var dataValue, sqlType, _, additionalType = gorm.ParseFieldStructForDialect(field, b)
 	if sqlType == "" {
 		switch dataValue.Kind() {
@@ -84,31 +84,31 @@ func (b bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 	return fmt.Sprintf("%v %v", sqlType, additionalType)
 }
 
-func (b bigQueryDialect) HasIndex(tableName string, indexName string) bool {
+func (b *bigQueryDialect) HasIndex(tableName string, indexName string) bool {
 	return processor.HasIndex(b.db, tableName, indexName)
 }
 
-func (b bigQueryDialect) HasForeignKey(tableName string, foreignKeyName string) bool {
+func (b *bigQueryDialect) HasForeignKey(tableName string, foreignKeyName string) bool {
 	return processor.HasForeignKey(b.db, tableName, foreignKeyName)
 }
 
-func (b bigQueryDialect) RemoveIndex(tableName string, indexName string) error {
+func (b *bigQueryDialect) RemoveIndex(tableName string, indexName string) error {
 	return processor.RemoveIndex(b.db, tableName, indexName)
 }
 
-func (b bigQueryDialect) HasTable(tableName string) bool {
+func (b *bigQueryDialect) HasTable(tableName string) bool {
 	return processor.HasTable(b.db, tableName)
 }
 
-func (b bigQueryDialect) HasColumn(tableName string, columnName string) bool {
+func (b *bigQueryDialect) HasColumn(tableName string, columnName string) bool {
 	return processor.HasColumn(b.db, tableName, columnName)
 }
 
-func (b bigQueryDialect) ModifyColumn(tableName string, columnName string, columnType string) error {
+func (b *bigQueryDialect) ModifyColumn(tableName string, columnName string, columnType string) error {
 	return processor.ModifyColumn(b.db, tableName, columnName, columnType)
 }
 
-func (b bigQueryDialect) LimitAndOffsetSQL(limit, offset interface{}) (string, error) {
+func (b *bigQueryDialect) LimitAndOffsetSQL(limit, offset interface{}) (string, error) {
 
 	if isValidLimitOrOffset(limit) && !isValidLimitOrOffset(offset) {
 		return fmt.Sprintf(" LIMIT %d", limit), nil
@@ -122,31 +122,31 @@ func isValidLimitOrOffset(value interface{}) bool {
 	return value != -1 && value != nil
 }
 
-func (b bigQueryDialect) SelectFromDummyTable() string {
+func (b *bigQueryDialect) SelectFromDummyTable() string {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) LastInsertIDOutputInterstitial(tableName, columnName string, columns []string) string {
+func (b *bigQueryDialect) LastInsertIDOutputInterstitial(tableName, columnName string, columns []string) string {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) LastInsertIDReturningSuffix(tableName, columnName string) string {
+func (b *bigQueryDialect) LastInsertIDReturningSuffix(tableName, columnName string) string {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) DefaultValueStr() string {
+func (b *bigQueryDialect) DefaultValueStr() string {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) BuildKeyName(kind, tableName string, fields ...string) string {
+func (b *bigQueryDialect) BuildKeyName(kind, tableName string, fields ...string) string {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) NormalizeIndexAndColumn(indexName, columnName string) (string, string) {
+func (b *bigQueryDialect) NormalizeIndexAndColumn(indexName, columnName string) (string, string) {
 	panic("implement me")
 }
 
-func (b bigQueryDialect) CurrentDatabase() string {
+func (b *bigQueryDialect) CurrentDatabase() string {
 	panic("implement me")
 }
 

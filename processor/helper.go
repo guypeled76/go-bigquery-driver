@@ -7,9 +7,15 @@ func queryToBool(db gorm.SQLCommon, query string, args ...interface{}) bool {
 		return false
 	}
 
-	db.Query(query, args...)
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return false
+	}
 
-	return false
+	var value interface{}
+	rows.Next()
+	rows.Scan(&value)
+	return value == true
 }
 
 func execute(db gorm.SQLCommon, query string, args ...interface{}) error {

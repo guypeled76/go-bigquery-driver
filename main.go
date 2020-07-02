@@ -22,6 +22,14 @@ func main() {
 
 	var projects []RunTestProject
 
+	if db.HasTable(projects) {
+		log.Println("verified has table")
+	}
+
+	if db.HasTable(projects) {
+		log.Println("verified has table")
+	}
+
 	err = db.Not("Name", []string{"", "2D"}).Limit(2).Find(&projects).Error
 	if err != nil {
 		log.Fatal(err)
@@ -42,6 +50,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for _, project := range projects {
 		log.Println(project.Name)
 	}
