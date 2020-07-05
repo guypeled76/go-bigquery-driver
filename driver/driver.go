@@ -24,12 +24,15 @@ func (b bigQueryDriver) Open(uri string) (driver.Conn, error) {
 		return nil, err
 	}
 
-	client, err := bigquery.NewClient(context.Background(), config.projectID)
+	ctx := context.Background()
+
+	client, err := bigquery.NewClient(ctx, config.projectID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &bigQueryConnection{
+		ctx:    ctx,
 		client: client,
 		config: *config,
 	}, nil

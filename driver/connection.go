@@ -8,6 +8,7 @@ import (
 )
 
 type bigQueryConnection struct {
+	ctx     context.Context
 	client  *bigquery.Client
 	config  bigQueryConfig
 	closed  bool
@@ -21,6 +22,10 @@ func (connection *bigQueryConnection) GetDataset() *bigquery.Dataset {
 	}
 	connection.dataset = connection.client.Dataset(connection.config.dataSet)
 	return connection.dataset
+}
+
+func (connection *bigQueryConnection) GetContext() context.Context {
+	return connection.ctx
 }
 
 func (connection *bigQueryConnection) Ping(ctx context.Context) error {

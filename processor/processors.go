@@ -1,15 +1,42 @@
 package processor
 
 import (
+	"context"
 	"database/sql/driver"
+	"errors"
 )
 
 type processorHandler func(Provider, []driver.Value) (driver.Rows, error)
 
 var processors = map[string]processorHandler{
-	hasTable: processHasTable,
+	hasTable:  processHasTable,
+	hasColumn: processHasColumn,
 }
 
 func processHasTable(provider Provider, args []driver.Value) (driver.Rows, error) {
-	return createValueRows(provider.GetDataset().Table(args[0].(string)) != nil), nil
+	_, err := provider.GetDataset().Table(args[0].(string)).Metadata(context.Background())
+	return createValueRows(err == nil), nil
+}
+
+func processHasColumn(provider Provider, args []driver.Value) (driver.Rows, error) {
+	if len(args) < 2 {
+		return nil, errors.New("has column needs two arguments")
+	}
+	hasColumnFlag, err := evaluateHasColumn(provider, args[0].(string), args[1].(string))
+	return createValueRows(hasColumnFlag), err
+}
+
+func evaluateHasColumn(provider Provider, tableName, columnName string) (bool, error) {
+	metadata, err := provider.GetDataset().Table(tableName).Metadata(context.Background())
+	if err != nil {
+		return false, err
+	}
+
+	for _, field := range metadata.Schema {
+		if field.Name == columnName {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

@@ -10,6 +10,7 @@ import (
 
 type RunTestProject struct {
 	Name string `gorm:"column:Name"`
+	Date string `gorm:"column:Date"`
 }
 
 type RunTestSuit struct {
@@ -27,14 +28,16 @@ func main() {
 
 	logrus.SetLevel(logrus.DebugLevel)
 
-	db, err := gorm.Open("bigquery", "bigquery://unity-rd-perf-test-data-prd/location/perf_test_results")
+	db, err := gorm.Open("bigquery", "bigquery://go-bigquery-driver/playground")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	db.AutoMigrate(&RunTestProject{})
+
 	//unnestingExample(db)
-	unnestingExample2(db)
-	//hasTableExample(db)
+	//unnestingExample2(db)
+	hasTableExample(db)
 	//miscExamples(db)
 
 	defer db.Close()
@@ -44,15 +47,17 @@ func main() {
 
 func unnestingExample(db *gorm.DB) {
 	var versions []RunChartVersion
-	db.Select("DISTINCT CONCAT(" +
+	err := db.Select("DISTINCT CONCAT(" +
 		"CAST(sample.ProductVersion.MajorVersion AS STRING), '.'," +
 		"CAST(sample.ProductVersion.MinorVersion AS STRING), '.'," +
 		"CAST(sample.ProductVersion.RevisionVersion AS STRING)" +
 		") as Label," +
 		"sample.ProductVersion.Changeset," +
 		"sample.EditorVersion.Branch," +
-		"sample.ProductVersion.Date").Table("run_charts, UNNEST(Samples) as sample").Find(&versions)
-
+		"sample.ProductVersion.Date").Table("run_charts, UNNEST(Samples) as sample").Find(&versions).Error
+	if err != nil {
+		log.Fatal(err)
+	}
 	for _, version := range versions {
 		log.Printf("%s,%s\n", version.Label, version.Date)
 	}
@@ -104,5 +109,7 @@ func hasTableExample(db *gorm.DB) {
 	var projects []RunTestProject
 	if db.HasTable(projects) {
 		log.Println("verified has table")
+	} else {
+		log.Println("could not verify table")
 	}
 }

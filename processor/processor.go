@@ -2,11 +2,13 @@ package processor
 
 import (
 	"cloud.google.com/go/bigquery"
+	"context"
 	"database/sql/driver"
 )
 
 type Provider interface {
 	GetDataset() *bigquery.Dataset
+	GetContext() context.Context
 }
 
 func Exec(provider Provider, query string, args []driver.Value) (driver.Result, error) {
