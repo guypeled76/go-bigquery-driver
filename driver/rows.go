@@ -8,15 +8,19 @@ import (
 )
 
 type bigQueryRows struct {
-	rowIterator *bigquery.RowIterator
+	source bigQuerySource
+	schema bigQuerySchema
+}
+
+func (rows *bigQueryRows) ensureSchema() {
+	if rows.schema == nil {
+		rows.schema = rows.source.GetSchema()
+	}
 }
 
 func (rows *bigQueryRows) Columns() []string {
-	var columns []string
-	for _, column := range rows.rowIterator.Schema {
-		columns = append(columns, column.Name)
-	}
-	return columns
+	rows.ensureSchema()
+	return rows.schema.ColumnNames()
 }
 
 func (rows *bigQueryRows) Close() error {
@@ -24,8 +28,11 @@ func (rows *bigQueryRows) Close() error {
 }
 
 func (rows *bigQueryRows) Next(dest []driver.Value) error {
-	values, err := rows.next()
 
+	rows.ensureSchema()
+
+	var values []bigquery.Value
+	err := rows.source.Next(&values)
 	if err == iterator.Done {
 		return io.EOF
 	}
@@ -37,19 +44,9 @@ func (rows *bigQueryRows) Next(dest []driver.Value) error {
 	var length = len(values)
 	for i := range dest {
 		if i < length {
-			dest[i] = values[i]
+			dest[i] = rows.schema.ConvertColumnValue(i, values[i])
 		}
 	}
 
 	return nil
-}
-
-func (rows *bigQueryRows) next() ([]bigquery.Value, error) {
-	var values []bigquery.Value
-	err := rows.rowIterator.Next(&values)
-	if err != nil {
-		return nil, err
-	}
-
-	return values, nil
 }

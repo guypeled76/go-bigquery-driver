@@ -54,6 +54,11 @@ func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, err
 func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, error) {
 
 	logrus.Debugf("query:%s", statement.query)
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		for _, arg := range args {
+			logrus.Debugf("- param:%s", convertParameterToValue(arg))
+		}
+	}
 
 	rows, err := processor.Query(statement.connection, statement.query, args)
 	if err != nil || rows != nil {
@@ -70,7 +75,7 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 		return nil, err
 	}
 
-	return &bigQueryRows{rowIterator: rowIterator}, nil
+	return &bigQueryRows{source: createSourceFromRowIterator(rowIterator)}, nil
 }
 
 func (statement bigQueryStatement) buildQuery(args []driver.Value) (*bigquery.Query, error) {
@@ -136,4 +141,11 @@ func convertParameters(args []driver.NamedValue) []driver.Value {
 		}
 	}
 	return values
+}
+func convertParameterToValue(value driver.Value) interface{} {
+	namedValue, ok := value.(driver.NamedValue)
+	if ok {
+		return namedValue.Value
+	}
+	return value
 }

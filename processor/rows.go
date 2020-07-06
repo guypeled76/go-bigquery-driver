@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func createValueRows(value interface{}) driver.Rows {
+func rowsFromValue(value interface{}) driver.Rows {
 	return &queryResults{
 		values:  []interface{}{value},
 		columns: []string{"Value"},

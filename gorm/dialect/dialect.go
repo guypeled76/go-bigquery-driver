@@ -34,6 +34,18 @@ func (b *bigQueryDialect) Quote(key string) string {
 }
 
 func (b *bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
+
+	bigqueryType := field.TagSettings["BIGQUERY"]
+	if bigqueryType != "" {
+		switch strings.ToUpper(bigqueryType) {
+		case "STRUCT":
+
+			return "STRUCT"
+		case "ARRAY":
+			return "ARRAY"
+		}
+	}
+
 	var dataValue, sqlType, _, additionalType = gorm.ParseFieldStructForDialect(field, b)
 	if sqlType == "" {
 		switch dataValue.Kind() {

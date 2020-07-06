@@ -15,7 +15,7 @@ var processors = map[string]processorHandler{
 
 func processHasTable(provider Provider, args []driver.Value) (driver.Rows, error) {
 	_, err := provider.GetDataset().Table(args[0].(string)).Metadata(context.Background())
-	return createValueRows(err == nil), nil
+	return rowsFromValue(err == nil), nil
 }
 
 func processHasColumn(provider Provider, args []driver.Value) (driver.Rows, error) {
@@ -23,7 +23,7 @@ func processHasColumn(provider Provider, args []driver.Value) (driver.Rows, erro
 		return nil, errors.New("has column needs two arguments")
 	}
 	hasColumnFlag, err := evaluateHasColumn(provider, args[0].(string), args[1].(string))
-	return createValueRows(hasColumnFlag), err
+	return rowsFromValue(hasColumnFlag), err
 }
 
 func evaluateHasColumn(provider Provider, tableName, columnName string) (bool, error) {
