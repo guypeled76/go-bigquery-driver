@@ -30,6 +30,9 @@ func (statement bigQueryStatement) QueryContext(ctx context.Context, args []driv
 }
 
 func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, error) {
+
+	logrus.Debugf("exec:%s", statement.query)
+
 	result, err := processor.Exec(statement.connection, statement.query, args)
 	if err != nil || result != nil {
 		return result, err
@@ -49,6 +52,9 @@ func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, err
 }
 
 func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, error) {
+
+	logrus.Debugf("query:%s", statement.query)
+
 	rows, err := processor.Query(statement.connection, statement.query, args)
 	if err != nil || rows != nil {
 		return rows, err
@@ -68,8 +74,6 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 }
 
 func (statement bigQueryStatement) buildQuery(args []driver.Value) (*bigquery.Query, error) {
-
-	logrus.Debugf("query:%s", statement.query)
 
 	query, err := statement.connection.query(statement.query)
 	if err != nil {

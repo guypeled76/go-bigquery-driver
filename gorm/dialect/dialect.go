@@ -126,12 +126,16 @@ func (b *bigQueryDialect) SelectFromDummyTable() string {
 	panic("implement me")
 }
 
-func (b *bigQueryDialect) LastInsertIDOutputInterstitial(tableName, columnName string, columns []string) string {
-	panic("implement me")
+func (bigQueryDialect) SupportLastInsertID() bool {
+	return false
 }
 
-func (b *bigQueryDialect) LastInsertIDReturningSuffix(tableName, columnName string) string {
-	panic("implement me")
+func (bigQueryDialect) LastInsertIDOutputInterstitial(tableName, columnName string, columns []string) string {
+	return ""
+}
+
+func (bigQueryDialect) LastInsertIDReturningSuffix(tableName, columnName string) string {
+	return ""
 }
 
 func (b *bigQueryDialect) DefaultValueStr() string {
