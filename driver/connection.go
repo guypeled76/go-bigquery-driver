@@ -78,3 +78,13 @@ func (connection *bigQueryConnection) Begin() (driver.Tx, error) {
 func (connection *bigQueryConnection) query(query string) (*bigquery.Query, error) {
 	return connection.client.Query(query), nil
 }
+
+func (connection *bigQueryConnection) ExecContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Result, error) {
+	var statement = &bigQueryStatement{connection, query}
+	return statement.ExecContext(ctx, args)
+}
+
+func (connection *bigQueryConnection) Exec(query string, args []driver.Value) (driver.Result, error) {
+	var statement = &bigQueryStatement{connection, query}
+	return statement.Exec(args)
+}
