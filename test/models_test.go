@@ -21,3 +21,14 @@ type ComplexSubRecord struct {
 func (record *ComplexSubRecord) Scan(value interface{}) error {
 	return scanner.Scan(value, record)
 }
+
+type ArrayRecord struct {
+	Name    string            `gorm:"column:Name"`
+	Records ArrayRecordRecord `gorm:"column:Records"`
+}
+
+type ArrayRecordRecord []ComplexSubRecord
+
+func (record *ArrayRecordRecord) Scan(value interface{}) error {
+	return scanner.Scan(value, record)
+}

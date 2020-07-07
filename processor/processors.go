@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"errors"
+	"github.com/guypeled76/go-bigquery-driver/utils"
 )
 
 type processorHandler func(Provider, []driver.Value) (driver.Rows, error)
@@ -14,7 +15,7 @@ var processors = map[string]processorHandler{
 }
 
 func processHasTable(provider Provider, args []driver.Value) (driver.Rows, error) {
-	_, err := provider.GetDataset().Table(args[0].(string)).Metadata(context.Background())
+	_, err := provider.GetDataset().Table(utils.GetStringValueAt(args, 0)).Metadata(context.Background())
 	return rowsFromValue(err == nil), nil
 }
 
@@ -22,7 +23,7 @@ func processHasColumn(provider Provider, args []driver.Value) (driver.Rows, erro
 	if len(args) < 2 {
 		return nil, errors.New("has column needs two arguments")
 	}
-	hasColumnFlag, err := evaluateHasColumn(provider, args[0].(string), args[1].(string))
+	hasColumnFlag, err := evaluateHasColumn(provider, utils.GetStringValueAt(args, 0), args[1].(string))
 	return rowsFromValue(hasColumnFlag), err
 }
 

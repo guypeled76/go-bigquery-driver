@@ -35,18 +35,8 @@ func (b *bigQueryDialect) Quote(key string) string {
 
 func (b *bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 
-	bigqueryType := field.TagSettings["BIGQUERY"]
-	if bigqueryType != "" {
-		switch strings.ToUpper(bigqueryType) {
-		case "STRUCT":
-
-			return "STRUCT"
-		case "ARRAY":
-			return "ARRAY"
-		}
-	}
-
 	var dataValue, sqlType, _, additionalType = gorm.ParseFieldStructForDialect(field, b)
+
 	if sqlType == "" {
 		switch dataValue.Kind() {
 		case reflect.Bool:
@@ -71,11 +61,17 @@ func (b *bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 		case reflect.Struct:
 			if _, ok := dataValue.Interface().(time.Time); ok {
 				sqlType = "TIMESTAMP"
+			} else {
+				sqlType = b.dataTypeOfStruct(field.Struct)
 			}
 		case reflect.Array:
 			if _, ok := dataValue.Interface().(uuid.UUID); ok {
 				sqlType = "STRING"
+			} else {
+				sqlType = fmt.Sprintf("ARRAY<%s>", b.dataTypeOfStruct(field.Struct))
 			}
+		case reflect.Slice:
+			sqlType = fmt.Sprintf("ARRAY<%s>", b.dataTypeOfStruct(field.Struct))
 		default:
 			if _, ok := dataValue.Interface().([]byte); ok {
 				sqlType = "BYTES"
@@ -171,4 +167,50 @@ func (b *bigQueryDialect) fieldCanAutoIncrement(field *gorm.StructField) bool {
 		return strings.ToLower(value) != "false"
 	}
 	return field.IsPrimaryKey
+}
+
+func (b *bigQueryDialect) dataTypeOfStruct(field reflect.StructField) string {
+
+	fieldType := field.Type
+
+	var fieldDefinitions []string
+
+	switch fieldType.Kind() {
+	case reflect.Slice, reflect.Array:
+		fieldType = fieldType.Elem()
+	}
+
+	for index := 0; index < fieldType.NumField(); index++ {
+		subField := fieldType.Field(index)
+
+		fieldDefinitions = append(fieldDefinitions, fmt.Sprintf("%s %s", subField.Name, b.DataTypeOf(&gorm.StructField{
+			Name:        subField.Name,
+			Names:       []string{subField.Name},
+			Tag:         subField.Tag,
+			TagSettings: parseTagSetting(subField.Tag),
+			Struct:      subField,
+		})))
+	}
+
+	return fmt.Sprintf("STRUCT<%s>", strings.Join(fieldDefinitions, ", "))
+}
+
+func parseTagSetting(tags reflect.StructTag) map[string]string {
+	setting := map[string]string{}
+	for _, str := range []string{tags.Get("sql"), tags.Get("gorm")} {
+		if str == "" {
+			continue
+		}
+		tags := strings.Split(str, ";")
+		for _, value := range tags {
+			v := strings.Split(value, ":")
+			k := strings.TrimSpace(strings.ToUpper(v[0]))
+			if len(v) >= 2 {
+				setting[k] = strings.Join(v[1:], ":")
+			} else {
+				setting[k] = k
+			}
+		}
+	}
+	return setting
 }

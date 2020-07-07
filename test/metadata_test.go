@@ -49,3 +49,16 @@ func (suite *MetadataTestSuit) Test_SelectComplexTable() {
 
 	}
 }
+
+func (suite *MetadataTestSuit) Test_SelectArrayTable() {
+	var records []ArrayRecord
+	suite.db.DropTableIfExists(&ArrayRecord{})
+	assert.False(suite.T(), suite.db.HasTable(&ArrayRecord{}))
+	suite.db.AutoMigrate(&ArrayRecord{})
+	assert.True(suite.T(), suite.db.HasTable(&ArrayRecord{}))
+	suite.db.Create(&ArrayRecord{Name: "test", Records: ArrayRecordRecord{ComplexSubRecord{Name: "dd", Age: 1}, ComplexSubRecord{Name: "dd1", Age: 1}}})
+
+	if len(records) > 0 {
+
+	}
+}
