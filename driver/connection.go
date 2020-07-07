@@ -43,6 +43,11 @@ func (connection *bigQueryConnection) Ping(ctx context.Context) error {
 	return nil
 }
 
+func (connection *bigQueryConnection) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	var statement = &bigQueryStatement{connection, query}
+	return statement.QueryContext(ctx, args)
+}
+
 func (connection *bigQueryConnection) Query(query string, args []driver.Value) (driver.Rows, error) {
 	statement, err := connection.Prepare(query)
 	if err != nil {

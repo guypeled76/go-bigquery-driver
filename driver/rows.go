@@ -1,7 +1,6 @@
 package driver
 
 import (
-	"cloud.google.com/go/bigquery"
 	"database/sql/driver"
 	"google.golang.org/api/iterator"
 	"io"
@@ -31,8 +30,7 @@ func (rows *bigQueryRows) Next(dest []driver.Value) error {
 
 	rows.ensureSchema()
 
-	var values []bigquery.Value
-	err := rows.source.Next(&values)
+	values, err := rows.source.Next()
 	if err == iterator.Done {
 		return io.EOF
 	}

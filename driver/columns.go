@@ -40,14 +40,25 @@ func (column bigQueryColumn) ConvertValue(value bigquery.Value) driver.Value {
 	}
 
 	values, ok := value.([]bigquery.Value)
-	if !ok || len(values) == 0 {
-		return value
+	if ok {
+
+		if len(values) > 0 {
+			if _, isRows := values[0].([]bigquery.Value); !isRows {
+				values = []bigquery.Value{values}
+			}
+		}
+
+		schema := createBigQuerySchema(column.Schema)
+
+		return &bigQueryRows{
+			source: createSourceFromColumn(schema, values),
+		}
 	}
 
 	return value
 }
 
-func createBigQueryColumns(schema bigquery.Schema) bigQuerySchema {
+func createBigQuerySchema(schema bigquery.Schema) bigQuerySchema {
 	var names []string
 	var columns []bigQueryColumn
 	for _, column := range schema {

@@ -1,5 +1,9 @@
 package test
 
+import (
+	"github.com/guypeled76/go-bigquery-driver/gorm/scanner"
+)
+
 type SimpleTestRecord struct {
 	Name string `gorm:"column:Name"`
 }
@@ -15,5 +19,5 @@ type ComplexSubRecord struct {
 }
 
 func (record *ComplexSubRecord) Scan(value interface{}) error {
-	return nil
+	return scanner.Scan(value, record)
 }
