@@ -21,6 +21,11 @@ func (statement bigQueryStatement) NumInput() int {
 	return 0
 }
 
+func (bigQueryStatement) CheckNamedValue(*driver.NamedValue) error {
+	// TODO: Revise in the future
+	return nil
+}
+
 func (statement bigQueryStatement) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
 	return statement.Exec(convertParameters(args))
 }

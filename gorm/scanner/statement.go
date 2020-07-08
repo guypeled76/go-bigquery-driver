@@ -9,6 +9,7 @@ type scannerStatement struct {
 }
 
 func (scannerStatement) CheckNamedValue(*driver.NamedValue) error {
+	// TODO: Revise in the future
 	return nil
 }
 

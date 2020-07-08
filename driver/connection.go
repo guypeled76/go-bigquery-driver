@@ -93,3 +93,8 @@ func (connection *bigQueryConnection) Exec(query string, args []driver.Value) (d
 	var statement = &bigQueryStatement{connection, query}
 	return statement.Exec(args)
 }
+
+func (bigQueryConnection) CheckNamedValue(*driver.NamedValue) error {
+	// TODO: Revise in the future
+	return nil
+}
