@@ -34,23 +34,22 @@ func (suite *MetadataTestSuit) Test_CreateSimpleTable() {
 	}
 }
 
-func (suite *MetadataTestSuit) Test_CreateComplexTable() {
+func (suite *MetadataTestSuit) Test_CRUDWithStruct() {
+	var records []ComplexRecord
 	suite.db.DropTableIfExists(&ComplexRecord{})
 	assert.False(suite.T(), suite.db.HasTable(&ComplexRecord{}))
 	suite.db.AutoMigrate(&ComplexRecord{})
 	assert.True(suite.T(), suite.db.HasTable(&ComplexRecord{}))
-}
-
-func (suite *MetadataTestSuit) Test_SelectComplexTable() {
-	var records []ComplexRecord
-	suite.db.Find(&records)
-
-	if len(records) > 0 {
-
+	suite.db.Create(&ComplexRecord{Name: "test", Record: ComplexSubRecord{Name: "dd", Age: 1}})
+	suite.db.Create(&ComplexRecord{Name: "test2", Record: ComplexSubRecord{Name: "dd2", Age: 444}})
+	suite.db.Order("Name").Find(&records)
+	assert.Equal(suite.T(), 2, len(records), "we should have two records")
+	if len(records) == 2 {
+		assert.Equal(suite.T(), 444, records[1].Record.Age)
 	}
 }
 
-func (suite *MetadataTestSuit) Test_SelectArrayTable() {
+func (suite *MetadataTestSuit) Test_CRUDTableWithArray() {
 	var records []ArrayRecord
 	suite.db.DropTableIfExists(&ArrayRecord{})
 	assert.False(suite.T(), suite.db.HasTable(&ArrayRecord{}))

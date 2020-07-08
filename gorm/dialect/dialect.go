@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -35,7 +36,7 @@ func (b *bigQueryDialect) Quote(key string) string {
 
 func (b *bigQueryDialect) DataTypeOf(field *gorm.StructField) string {
 
-	var dataValue, sqlType, _, additionalType = gorm.ParseFieldStructForDialect(field, b)
+	var dataValue, sqlType, _, additionalType = parseFieldStructForDialect(field, b)
 
 	if sqlType == "" {
 		switch dataValue.Kind() {
@@ -213,4 +214,46 @@ func parseTagSetting(tags reflect.StructTag) map[string]string {
 		}
 	}
 	return setting
+}
+
+var parseFieldStructForDialect = func(field *gorm.StructField, dialect gorm.Dialect) (fieldValue reflect.Value, sqlType string, size int, additionalType string) {
+	// Get redirected field type
+	var (
+		reflectType = field.Struct.Type
+		dataType, _ = field.TagSettingsGet("TYPE")
+	)
+
+	for reflectType.Kind() == reflect.Ptr {
+		reflectType = reflectType.Elem()
+	}
+
+	// Get redirected field value
+	fieldValue = reflect.Indirect(reflect.New(reflectType))
+
+	if gormDataType, ok := fieldValue.Interface().(interface {
+		GormDataType(gorm.Dialect) string
+	}); ok {
+		dataType = gormDataType.GormDataType(dialect)
+	}
+
+	// Default Size
+	if num, ok := field.TagSettingsGet("SIZE"); ok {
+		size, _ = strconv.Atoi(num)
+	} else {
+		size = 255
+	}
+
+	// Default type from tag setting
+	notNull, _ := field.TagSettingsGet("NOT NULL")
+	unique, _ := field.TagSettingsGet("UNIQUE")
+	additionalType = notNull + " " + unique
+	if value, ok := field.TagSettingsGet("DEFAULT"); ok {
+		additionalType = additionalType + " DEFAULT " + value
+	}
+
+	if value, ok := field.TagSettingsGet("COMMENT"); ok {
+		additionalType = additionalType + " COMMENT " + value
+	}
+
+	return fieldValue, dataType, size, strings.TrimSpace(additionalType)
 }
