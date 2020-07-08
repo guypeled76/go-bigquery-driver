@@ -18,7 +18,7 @@ func (suite *MetadataTestSuit) Test_HasTable() {
 	assert.False(suite.T(), suite.db.HasTable("non_existing_table"))
 }
 
-func (suite *MetadataTestSuit) Test_CreateSimpleTable() {
+func (suite *MetadataTestSuit) Test_CRUDTableWithNoStructsAndArrays() {
 	suite.db.DropTableIfExists(&SimpleTestRecord{})
 	assert.False(suite.T(), suite.db.HasTable(&SimpleTestRecord{}))
 	suite.db.AutoMigrate(&SimpleTestRecord{})
@@ -34,7 +34,7 @@ func (suite *MetadataTestSuit) Test_CreateSimpleTable() {
 	}
 }
 
-func (suite *MetadataTestSuit) Test_CRUDWithStruct() {
+func (suite *MetadataTestSuit) Test_CRUDTableWithStruct() {
 	var records []ComplexRecord
 	suite.db.DropTableIfExists(&ComplexRecord{})
 	assert.False(suite.T(), suite.db.HasTable(&ComplexRecord{}))
