@@ -132,7 +132,7 @@ func isValidLimitOrOffset(value interface{}) bool {
 }
 
 func (b *bigQueryDialect) SelectFromDummyTable() string {
-	panic("implement me")
+	return ""
 }
 
 func (bigQueryDialect) SupportLastInsertID() bool {
@@ -148,19 +148,19 @@ func (bigQueryDialect) LastInsertIDReturningSuffix(tableName, columnName string)
 }
 
 func (b *bigQueryDialect) DefaultValueStr() string {
-	panic("implement me")
+	return ""
 }
 
 func (b *bigQueryDialect) BuildKeyName(kind, tableName string, fields ...string) string {
-	panic("implement me")
+	return ""
 }
 
 func (b *bigQueryDialect) NormalizeIndexAndColumn(indexName, columnName string) (string, string) {
-	panic("implement me")
+	return indexName, columnName
 }
 
 func (b *bigQueryDialect) CurrentDatabase() string {
-	panic("implement me")
+	return ""
 }
 
 func (b *bigQueryDialect) fieldCanAutoIncrement(field *gorm.StructField) bool {

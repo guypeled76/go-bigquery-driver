@@ -49,6 +49,7 @@ func (s scannerStatement) Exec(args []driver.Value) (driver.Result, error) {
 }
 
 func (s scannerStatement) Query(args []driver.Value) (driver.Rows, error) {
+
 	if len(args) < 1 {
 		return nil, errors.New("scanner arguments should have an argument with rows")
 	}
