@@ -56,8 +56,8 @@ func (suite *MetadataTestSuit) Test_SelectArrayTable() {
 	assert.False(suite.T(), suite.db.HasTable(&ArrayRecord{}))
 	suite.db.AutoMigrate(&ArrayRecord{})
 	assert.True(suite.T(), suite.db.HasTable(&ArrayRecord{}))
-	suite.db.Create(&ArrayRecord{Name: "test", Records: ArrayRecordRecord{ComplexSubRecord{Name: "dd", Age: 1}, ComplexSubRecord{Name: "dd1", Age: 1}}})
-	suite.db.Create(&ArrayRecord{Name: "test2", Records: ArrayRecordRecord{ComplexSubRecord{Name: "dd2", Age: 444}, ComplexSubRecord{Name: "dd3", Age: 1}}})
+	suite.db.Create(&ArrayRecord{Name: "test", Records: ArrayRecordRecord{{Name: "dd", Age: 1}, {Name: "dd1", Age: 1}}})
+	suite.db.Create(&ArrayRecord{Name: "test2", Records: ArrayRecordRecord{{Name: "dd2", Age: 444}, {Name: "dd3", Age: 1}}})
 	suite.db.Order("Name").Find(&records)
 	assert.Equal(suite.T(), 2, len(records), "we should have two records")
 	if len(records) == 2 {
