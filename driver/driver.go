@@ -19,6 +19,10 @@ type bigQueryConfig struct {
 
 func (b bigQueryDriver) Open(uri string) (driver.Conn, error) {
 
+	if uri == "scanner" {
+		return &scannerConnection{}, nil
+	}
+
 	config, err := configFromUri(uri)
 	if err != nil {
 		return nil, err
