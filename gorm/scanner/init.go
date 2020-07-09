@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	_ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
 	"github.com/jinzhu/gorm"
 	"log"
 )
