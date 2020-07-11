@@ -6,7 +6,6 @@ import (
 	"github.com/guypeled76/go-bigquery-driver/adaptor"
 	_ "github.com/guypeled76/go-bigquery-driver/driver"
 	"gorm.io/gorm"
-	"gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/migrator"
@@ -38,6 +37,8 @@ func (dialector Dialector) Initialize(db *gorm.DB) (err error) {
 
 	initializeCallbacks(db)
 
+	initializeBuilders(db)
+
 	if dialector.Conn != nil {
 		db.ConnPool = dialector.Conn
 	} else {
@@ -45,29 +46,6 @@ func (dialector Dialector) Initialize(db *gorm.DB) (err error) {
 	}
 
 	return
-}
-
-func initializeCallbacks(db *gorm.DB) {
-
-	// register callbacks
-	callbacks.RegisterDefaultCallbacks(db, &callbacks.Config{
-		WithReturning: true,
-	})
-
-	rootDB := db
-
-	queryCallback := db.Callback().Query()
-	queryCallback.Replace("gorm:query", func(db *gorm.DB) {
-		if !db.DryRun {
-
-			db.Statement.Context = adaptor.SetSchemaAdaptor(db.Statement.Context, &bigQuerySchemaAdaptor{
-				db.Statement.Schema,
-				rootDB,
-			})
-		}
-
-		callbacks.Query(db)
-	})
 }
 
 func (dialector Dialector) Migrator(db *gorm.DB) gorm.Migrator {
