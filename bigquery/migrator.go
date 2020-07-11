@@ -40,7 +40,7 @@ func (m Migrator) DropIndex(value interface{}, name string) error {
 func (m Migrator) HasTable(value interface{}) bool {
 	var count int64
 	m.RunWithValue(value, func(stmt *gorm.Statement) error {
-		return m.DB.Raw("SELECT count(*) FROM information_schema.tables WHERE table_name = ?", stmt.Table).Row().Scan(&count)
+		return m.DB.Raw("SELECT count(*) FROM `INFORMATION_SCHEMA.TABLES` WHERE table_name = ?", stmt.Table).Row().Scan(&count)
 	})
 
 	return count > 0

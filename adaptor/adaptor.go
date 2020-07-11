@@ -39,8 +39,13 @@ func SetSchemaAdaptor(ctx context.Context, adaptorSchema SchemaAdaptor) context.
 }
 
 func GetSchemaAdaptor(ctx context.Context) SchemaAdaptor {
-	if ctx != nil {
-		return ctx.Value(adaptorCtxKey).(SchemaAdaptor)
+	if ctx == nil {
+		return nil
 	}
-	return nil
+
+	value := ctx.Value(adaptorCtxKey)
+	if value == nil {
+		return nil
+	}
+	return value.(SchemaAdaptor)
 }
