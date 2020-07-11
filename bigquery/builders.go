@@ -5,15 +5,19 @@ import (
 	"database/sql/driver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"log"
 	"reflect"
 )
 
 func initializeBuilders(db *gorm.DB) {
-	db.ClauseBuilders["VALUES"] = valuesBuilder
+	b := bigQueryBuilders{db}
+	db.ClauseBuilders["VALUES"] = b.buildValues
 }
 
-func valuesBuilder(c clause.Clause, builder clause.Builder) {
+type bigQueryBuilders struct {
+	db *gorm.DB
+}
+
+func (b bigQueryBuilders) buildValues(c clause.Clause, builder clause.Builder) {
 
 	if c.Expression == nil {
 		return
@@ -23,7 +27,6 @@ func valuesBuilder(c clause.Clause, builder clause.Builder) {
 	if !ok {
 		return
 	}
-	log.Print("f")
 
 	if len(values.Columns) > 0 {
 		builder.WriteByte('(')
@@ -43,7 +46,7 @@ func valuesBuilder(c clause.Clause, builder clause.Builder) {
 			}
 
 			builder.WriteByte('(')
-			valuesBuilderBuildValues(builder, value)
+			b.buildValuesArguments(builder, value)
 			builder.WriteByte(')')
 		}
 	} else {
@@ -51,7 +54,7 @@ func valuesBuilder(c clause.Clause, builder clause.Builder) {
 	}
 }
 
-func valuesBuilderBuildValues(builder clause.Builder, vars []interface{}) {
+func (bigQueryBuilders) buildValuesArguments(builder clause.Builder, vars []interface{}) {
 	for idx, v := range vars {
 		if idx > 0 {
 			builder.WriteByte(',')

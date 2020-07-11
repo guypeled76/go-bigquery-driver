@@ -13,18 +13,24 @@ func initializeCallbacks(db *gorm.DB) {
 		WithReturning: true,
 	})
 
-	rootDB := db
+	c := &bigQueryCallbacks{db}
 
 	queryCallback := db.Callback().Query()
-	queryCallback.Replace("gorm:query", func(db *gorm.DB) {
-		if !db.DryRun {
+	queryCallback.Replace("gorm:query", c.queryCallback)
+}
 
-			db.Statement.Context = adaptor.SetSchemaAdaptor(db.Statement.Context, &bigQuerySchemaAdaptor{
-				db.Statement.Schema,
-				rootDB,
-			})
-		}
+type bigQueryCallbacks struct {
+	root *gorm.DB
+}
 
-		callbacks.Query(db)
-	})
+func (c *bigQueryCallbacks) queryCallback(db *gorm.DB) {
+	if !db.DryRun {
+
+		db.Statement.Context = adaptor.SetSchemaAdaptor(db.Statement.Context, &bigQuerySchemaAdaptor{
+			db.Statement.Schema,
+			c.root,
+		})
+	}
+
+	callbacks.Query(db)
 }
