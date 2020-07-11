@@ -44,14 +44,14 @@ Opening a Gorm bigquery db
 package main
 
 import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
+    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "gorm.io/gorm"
     "log"
 )
 
 func main() {
     // You can also use the location format: "bigquery://projectid/location/dataset"
-    db, err := gorm.Open("bigquery", "bigquery://projectid/dataset")
+    db, err := gorm.Open(bigquery.Open("bigquery://go-bigquery-driver/playground"), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
     }
@@ -62,22 +62,21 @@ func main() {
 ```
 
 
-Using gorm with a BigQuery query that has a struct
+Using gorm with a BigQuery query that has a record
 
 ```go
 package main
 
 import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
-    "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
+    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "gorm.io/gorm"
     "log"
 )
 
 
 type ComplexRecord struct {
 	Name   string           `bigquery:"column:Name"`
-	Record ComplexSubRecord `bigquery:"column:Record"`
+	Record ComplexSubRecord `bigquery:"column:Record:type:RECORD"`
 }
 
 type ComplexSubRecord struct {
@@ -85,15 +84,9 @@ type ComplexSubRecord struct {
 	Age  int    `bigquery:"column:Age"`
 }
 
-// Scan overrides the default GORM behavior for structs and allows to 
-// get results from a big query query which has structs in it.
-func (record *ComplexSubRecord) Scan(value interface{}) error {
-	return scanner.Scan(value, record)
-}
-
 
 func main() {
-    db, err := gorm.Open("bigquery",  "bigquery://projectid/dataset")
+    db, err := gorm.Open(bigquery.Open("bigquery://go-bigquery-driver/playground"), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
     }
@@ -101,7 +94,7 @@ func main() {
     var records []ComplexRecord
     
     // Delete complex record table if exists
-    db.DropTableIfExists(&ComplexRecord{})
+    db.Migrator().DropTable(&ComplexRecord{})
 
     // Make sure we have a complex_records table
     db.AutoMigrate(&ComplexRecord{})
@@ -113,10 +106,6 @@ func main() {
     // Select records from table
     db.Order("Name").Find(&records)
 
-
-    defer db.Close() 
-    // Do Something with the DB
-
 }
 ```
 
@@ -126,21 +115,14 @@ Using gorm with a BigQuery query that has an array
 package main
 
 import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
-    "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
+    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "gorm.io/gorm"
     "log"
 )
 
 type ArrayRecord struct {
 	Name    string            `bigquery:"column:Name"`
-	Records ArrayRecordRecord `bigquery:"column:Records"`
-}
-
-type ArrayRecordRecord []ComplexSubRecord
-
-func (record *ArrayRecordRecord) Scan(value interface{}) error {
-	return scanner.Scan(value, record)
+	Records []ComplexSubRecord `bigquery:"column:Records;type:ARRAY"`
 }
 
 type ComplexSubRecord struct {
@@ -148,14 +130,8 @@ type ComplexSubRecord struct {
 	Age  int    `bigquery:"column:Age"`
 }
 
-func (record *ComplexSubRecord) Scan(value interface{}) error {
-	return scanner.Scan(value, record)
-}
-
-
-
 func main() {
-    db, err := gorm.Open("bigquery",  "bigquery://projectid/dataset")
+    db, err := gorm.Open(bigquery.Open("bigquery://go-bigquery-driver/playground"), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
     }
@@ -163,21 +139,18 @@ func main() {
     var records []ArrayRecord
     
     // Delete array_records table if exists
-    db.DropTableIfExists(&ArrayRecord{})
+    db.Migrator().DropTable(&ArrayRecord{})
 
     // Make sure we have an array_records table
     db.AutoMigrate(&ArrayRecord{})
     
     // Insert new records to table
-    db.Create(&ArrayRecord{Name: "test", Records: ArrayRecordRecord{{Name: "dd", Age: 1}, {Name: "dd1", Age: 1}}})
-    db.Create(&ArrayRecord{Name: "test2", Records: ArrayRecordRecord{{Name: "dd2", Age: 444}, {Name: "dd3", Age: 1}}})
+    db.Create(&ArrayRecord{Name: "test", Records: []ComplexSubRecord{{Name: "dd", Age: 1}, {Name: "dd1", Age: 1}}})
+    db.Create(&ArrayRecord{Name: "test2", Records: []ComplexSubRecord{{Name: "dd2", Age: 444}, {Name: "dd3", Age: 1}}})
 
     // Select records from table ordered by name
     db.Order("Name").Find(&records)
 
-
-    defer db.Close() 
-    // Do Something with the DB
 
 }
 ```
@@ -188,9 +161,8 @@ Using gorm with a BigQuery query that uses unnest
 package main
 
 import (
-    "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
-    "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
+    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "gorm.io/gorm"
     "log"
 )
 
@@ -199,7 +171,7 @@ type Version struct {
 }
 
 func main() {
-    db, err := gorm.Open("bigquery",  "bigquery://projectid/dataset")
+    db, err := gorm.Open(bigquery.Open("bigquery://go-bigquery-driver/playground"), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
     }
@@ -214,13 +186,10 @@ func main() {
         "CAST(sample.RevisionVersion AS STRING)" +
         ") as Label")
     
-    err := query.Find(&versions).Error
+    err = query.Find(&versions).Error
     if err != nil {
         log.Fatal(err)
     }
-
-    defer db.Close() 
-    // Do Something with the DB
 
 }
 ```
