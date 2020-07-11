@@ -3,6 +3,7 @@ package driver
 import (
 	"cloud.google.com/go/bigquery"
 	"database/sql/driver"
+	"github.com/guypeled76/go-bigquery-driver/adaptor"
 )
 
 type bigQuerySchema interface {
@@ -29,8 +30,9 @@ func (columns bigQueryColumns) ColumnNames() []string {
 }
 
 type bigQueryColumn struct {
-	Name   string
-	Schema bigquery.Schema
+	Name    string
+	Schema  bigquery.Schema
+	Adaptor adaptor.SchemaColumnAdaptor
 }
 
 func (column bigQueryColumn) ConvertValue(value bigquery.Value) driver.Value {
@@ -48,24 +50,44 @@ func (column bigQueryColumn) ConvertValue(value bigquery.Value) driver.Value {
 			}
 		}
 
-		schema := createBigQuerySchema(column.Schema)
+		schema := createBigQuerySchema(column.Schema, column.GetSchemaAdaptor())
 
-		return &bigQueryRows{
+		value = &bigQueryRows{
 			source: createSourceFromColumn(schema, values),
 		}
+	}
+
+	if columnAdaptor := column.Adaptor; columnAdaptor != nil {
+		return columnAdaptor.AdaptValue(value)
 	}
 
 	return value
 }
 
-func createBigQuerySchema(schema bigquery.Schema) bigQuerySchema {
+func (column *bigQueryColumn) GetSchemaAdaptor() adaptor.SchemaAdaptor {
+	if columnAdaptor := column.Adaptor; columnAdaptor != nil {
+		return columnAdaptor.GetSchemaAdaptor()
+	}
+	return nil
+}
+
+func createBigQuerySchema(schema bigquery.Schema, schemaAdaptor adaptor.SchemaAdaptor) bigQuerySchema {
 	var names []string
 	var columns []bigQueryColumn
 	for _, column := range schema {
-		names = append(names, column.Name)
+
+		name := column.Name
+
+		var columnAdaptor adaptor.SchemaColumnAdaptor
+		if schemaAdaptor != nil {
+			columnAdaptor = schemaAdaptor.GetColumnAdaptor(name)
+		}
+
+		names = append(names, name)
 		columns = append(columns, bigQueryColumn{
-			Name:   column.Name,
-			Schema: column.Schema,
+			Name:    name,
+			Schema:  column.Schema,
+			Adaptor: columnAdaptor,
 		})
 	}
 	return &bigQueryColumns{

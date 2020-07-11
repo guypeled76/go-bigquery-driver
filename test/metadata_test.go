@@ -15,14 +15,14 @@ func TestMetadataTestSuit(t *testing.T) {
 }
 
 func (suite *MetadataTestSuit) Test_HasTable() {
-	assert.False(suite.T(), suite.db.HasTable("non_existing_table"))
+	assert.False(suite.T(), suite.db.Migrator().HasTable("non_existing_table"))
 }
 
 func (suite *MetadataTestSuit) Test_CRUDTableWithNoStructsAndArrays() {
-	suite.db.DropTableIfExists(&SimpleTestRecord{})
-	assert.False(suite.T(), suite.db.HasTable(&SimpleTestRecord{}))
+	suite.db.Migrator().DropTable(&SimpleTestRecord{})
+	assert.False(suite.T(), suite.db.Migrator().HasTable(&SimpleTestRecord{}))
 	suite.db.AutoMigrate(&SimpleTestRecord{})
-	assert.True(suite.T(), suite.db.HasTable(&SimpleTestRecord{}))
+	assert.True(suite.T(), suite.db.Migrator().HasTable(&SimpleTestRecord{}))
 	suite.db.Create(&SimpleTestRecord{Name: "test"})
 
 	var records []SimpleTestRecord
@@ -36,10 +36,10 @@ func (suite *MetadataTestSuit) Test_CRUDTableWithNoStructsAndArrays() {
 
 func (suite *MetadataTestSuit) Test_CRUDTableWithStruct() {
 	var records []ComplexRecord
-	suite.db.DropTableIfExists(&ComplexRecord{})
-	assert.False(suite.T(), suite.db.HasTable(&ComplexRecord{}))
+	suite.db.Migrator().DropTable(&ComplexRecord{})
+	assert.False(suite.T(), suite.db.Migrator().HasTable(&ComplexRecord{}))
 	suite.db.AutoMigrate(&ComplexRecord{})
-	assert.True(suite.T(), suite.db.HasTable(&ComplexRecord{}))
+	assert.True(suite.T(), suite.db.Migrator().HasTable(&ComplexRecord{}))
 	suite.db.Create(&ComplexRecord{Name: "test", Record: ComplexSubRecord{Name: "dd", Age: 1}})
 	suite.db.Create(&ComplexRecord{Name: "test2", Record: ComplexSubRecord{Name: "dd2", Age: 444}})
 	suite.db.Order("Name").Find(&records)
@@ -51,12 +51,12 @@ func (suite *MetadataTestSuit) Test_CRUDTableWithStruct() {
 
 func (suite *MetadataTestSuit) Test_CRUDTableWithArray() {
 	var records []ArrayRecord
-	suite.db.DropTableIfExists(&ArrayRecord{})
-	assert.False(suite.T(), suite.db.HasTable(&ArrayRecord{}))
+	suite.db.Migrator().DropTable(&ArrayRecord{})
+	assert.False(suite.T(), suite.db.Migrator().HasTable(&ArrayRecord{}))
 	suite.db.AutoMigrate(&ArrayRecord{})
-	assert.True(suite.T(), suite.db.HasTable(&ArrayRecord{}))
-	suite.db.Create(&ArrayRecord{Name: "test", Records: ArrayRecordRecord{{Name: "dd", Age: 1}, {Name: "dd1", Age: 1}}})
-	suite.db.Create(&ArrayRecord{Name: "test2", Records: ArrayRecordRecord{{Name: "dd2", Age: 444}, {Name: "dd3", Age: 1}}})
+	assert.True(suite.T(), suite.db.Migrator().HasTable(&ArrayRecord{}))
+	suite.db.Create(&ArrayRecord{Name: "test", Records: []ComplexSubRecord{{Name: "dd", Age: 1}, {Name: "dd1", Age: 1}}})
+	suite.db.Create(&ArrayRecord{Name: "test2", Records: []ComplexSubRecord{{Name: "dd2", Age: 444}, {Name: "dd3", Age: 1}}})
 	suite.db.Order("Name").Find(&records)
 	assert.Equal(suite.T(), 2, len(records), "we should have two records")
 	if len(records) == 2 {

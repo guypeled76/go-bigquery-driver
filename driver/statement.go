@@ -4,7 +4,8 @@ import (
 	"cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
-	"github.com/guypeled76/go-bigquery-driver/processor"
+	"errors"
+	"github.com/guypeled76/go-bigquery-driver/adaptor"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,25 +23,76 @@ func (statement bigQueryStatement) NumInput() int {
 }
 
 func (bigQueryStatement) CheckNamedValue(*driver.NamedValue) error {
-	// TODO: Revise in the future
 	return nil
 }
 
-func (statement bigQueryStatement) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
-	return statement.Exec(convertParameters(args))
+func (statement *bigQueryStatement) ExecContext(ctx context.Context, args []driver.NamedValue) (driver.Result, error) {
+	logrus.Debugf("exec:%s", statement.query)
+
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		for _, arg := range args {
+			logrus.Debugf("- param:%s", convertParameterToValue(arg))
+		}
+	}
+
+	query, err := statement.buildQuery(convertParameters(args))
+	if err != nil {
+		return nil, err
+	}
+
+	rowIterator, err := query.Read(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &bigQueryResult{rowIterator}, nil
 }
 
-func (statement bigQueryStatement) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
-	return statement.Query(convertParameters(args))
+func (statement *bigQueryStatement) QueryContext(ctx context.Context, args []driver.NamedValue) (driver.Rows, error) {
+
+	logrus.Debugf("query:%s", statement.query)
+
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		for _, arg := range args {
+			logrus.Debugf("- param:%s", convertParameterToValue(arg))
+		}
+	}
+
+	if statement.query == adaptor.RerouteQuery {
+		if len(args) < 1 {
+			return nil, errors.New("expected a rerouting argument")
+		}
+
+		rows, ok := args[0].Value.(driver.Rows)
+		if !ok {
+			return nil, errors.New("expected a rerouting argument with rows")
+		}
+
+		return rows, nil
+	}
+
+	query, err := statement.buildQuery(convertParameters(args))
+	if err != nil {
+		return nil, err
+	}
+
+	rowIterator, err := query.Read(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return &bigQueryRows{source: createSourceFromRowIterator(rowIterator, adaptor.GetSchemaAdaptor(ctx))}, nil
+
 }
 
 func (statement bigQueryStatement) Exec(args []driver.Value) (driver.Result, error) {
 
 	logrus.Debugf("exec:%s", statement.query)
 
-	result, err := processor.Exec(statement.connection, statement.query, args)
-	if err != nil || result != nil {
-		return result, err
+	if logrus.IsLevelEnabled(logrus.DebugLevel) {
+		for _, arg := range args {
+			logrus.Debugf("- param:%s", convertParameterToValue(arg))
+		}
 	}
 
 	query, err := statement.buildQuery(args)
@@ -65,11 +117,6 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 		}
 	}
 
-	rows, err := processor.Query(statement.connection, statement.query, args)
-	if err != nil || rows != nil {
-		return rows, err
-	}
-
 	query, err := statement.buildQuery(args)
 	if err != nil {
 		return nil, err
@@ -80,7 +127,7 @@ func (statement bigQueryStatement) Query(args []driver.Value) (driver.Rows, erro
 		return nil, err
 	}
 
-	return &bigQueryRows{source: createSourceFromRowIterator(rowIterator)}, nil
+	return &bigQueryRows{source: createSourceFromRowIterator(rowIterator, nil)}, nil
 }
 
 func (statement bigQueryStatement) buildQuery(args []driver.Value) (*bigquery.Query, error) {
@@ -126,7 +173,7 @@ func buildParameter(arg driver.Value, parameters []bigquery.QueryParameter) []bi
 func buildParameterFromNamedValue(namedValue driver.NamedValue, parameters []bigquery.QueryParameter) []bigquery.QueryParameter {
 	logrus.Debugf("-param:%s=%s", namedValue.Name, namedValue.Value)
 
-	if namedValue.Name != "" {
+	if namedValue.Name == "" {
 		return append(parameters, bigquery.QueryParameter{
 			Value: namedValue.Value,
 		})

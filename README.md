@@ -45,7 +45,7 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
+    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
     "log"
 )
 
@@ -69,20 +69,20 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
+    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
     "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
     "log"
 )
 
 
 type ComplexRecord struct {
-	Name   string           `gorm:"column:Name"`
-	Record ComplexSubRecord `gorm:"column:Record"`
+	Name   string           `bigquery:"column:Name"`
+	Record ComplexSubRecord `bigquery:"column:Record"`
 }
 
 type ComplexSubRecord struct {
-	Name string `gorm:"column:Name"`
-	Age  int    `gorm:"column:Age"`
+	Name string `bigquery:"column:Name"`
+	Age  int    `bigquery:"column:Age"`
 }
 
 // Scan overrides the default GORM behavior for structs and allows to 
@@ -127,14 +127,14 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
+    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
     "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
     "log"
 )
 
 type ArrayRecord struct {
-	Name    string            `gorm:"column:Name"`
-	Records ArrayRecordRecord `gorm:"column:Records"`
+	Name    string            `bigquery:"column:Name"`
+	Records ArrayRecordRecord `bigquery:"column:Records"`
 }
 
 type ArrayRecordRecord []ComplexSubRecord
@@ -144,8 +144,8 @@ func (record *ArrayRecordRecord) Scan(value interface{}) error {
 }
 
 type ComplexSubRecord struct {
-	Name string `gorm:"column:Name"`
-	Age  int    `gorm:"column:Age"`
+	Name string `bigquery:"column:Name"`
+	Age  int    `bigquery:"column:Age"`
 }
 
 func (record *ComplexSubRecord) Scan(value interface{}) error {
@@ -189,13 +189,13 @@ package main
 
 import (
     "github.com/jinzhu/gorm"
-    _ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
+    _ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
     "github.com/guypeled76/go-bigquery-driver/gorm/scanner"
     "log"
 )
 
 type Version struct {
-	Label string `gorm:"column:Label"`
+	Label string `bigquery:"column:Label"`
 }
 
 func main() {

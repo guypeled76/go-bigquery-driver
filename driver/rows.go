@@ -2,13 +2,15 @@ package driver
 
 import (
 	"database/sql/driver"
+	"github.com/guypeled76/go-bigquery-driver/adaptor"
 	"google.golang.org/api/iterator"
 	"io"
 )
 
 type bigQueryRows struct {
-	source bigQuerySource
-	schema bigQuerySchema
+	source  bigQuerySource
+	schema  bigQuerySchema
+	adaptor adaptor.SchemaAdaptor
 }
 
 func (rows *bigQueryRows) ensureSchema() {

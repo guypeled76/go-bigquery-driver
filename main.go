@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "github.com/guypeled76/go-bigquery-driver/gorm/dialect"
+	_ "github.com/guypeled76/go-bigquery-driver/bigquery/dialect"
 	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -9,19 +9,19 @@ import (
 )
 
 type RunTestProject struct {
-	Name string `gorm:"column:Name"`
-	Date string `gorm:"column:Date"`
+	Name string `bigquery:"column:Name"`
+	Date string `bigquery:"column:Date"`
 }
 
 type RunTestSuit struct {
-	Name string `gorm:"column:Name"`
+	Name string `bigquery:"column:Name"`
 }
 
 type RunChartVersion struct {
-	Label     string    `gorm:"column:Label"`
-	Date      time.Time `gorm:"column:Date"`
-	Changeset string    `gorm:"column:Changeset"`
-	Branch    string    `gorm:"column:Branch"`
+	Label     string    `bigquery:"column:Label"`
+	Date      time.Time `bigquery:"column:Date"`
+	Changeset string    `bigquery:"column:Changeset"`
+	Branch    string    `bigquery:"column:Branch"`
 }
 
 func main() {

@@ -3,6 +3,7 @@ package driver
 import (
 	"cloud.google.com/go/bigquery"
 	"errors"
+	"github.com/guypeled76/go-bigquery-driver/adaptor"
 	"io"
 )
 
@@ -12,11 +13,12 @@ type bigQuerySource interface {
 }
 
 type bigQueryRowIteratorSource struct {
-	iterator *bigquery.RowIterator
+	iterator      *bigquery.RowIterator
+	schemaAdaptor adaptor.SchemaAdaptor
 }
 
 func (source *bigQueryRowIteratorSource) GetSchema() bigQuerySchema {
-	return createBigQuerySchema(source.iterator.Schema)
+	return createBigQuerySchema(source.iterator.Schema, source.schemaAdaptor)
 }
 
 func (source *bigQueryRowIteratorSource) Next() ([]bigquery.Value, error) {
@@ -25,9 +27,10 @@ func (source *bigQueryRowIteratorSource) Next() ([]bigquery.Value, error) {
 	return values, err
 }
 
-func createSourceFromRowIterator(rowIterator *bigquery.RowIterator) bigQuerySource {
+func createSourceFromRowIterator(rowIterator *bigquery.RowIterator, schemaAdaptor adaptor.SchemaAdaptor) bigQuerySource {
 	return &bigQueryRowIteratorSource{
-		rowIterator,
+		iterator:      rowIterator,
+		schemaAdaptor: schemaAdaptor,
 	}
 }
 
