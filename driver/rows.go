@@ -2,7 +2,7 @@ package driver
 
 import (
 	"database/sql/driver"
-	"github.com/guypeled76/go-bigquery-driver/adaptor"
+	"github.com/go-gorm/bigquery/adaptor"
 	"google.golang.org/api/iterator"
 	"io"
 )

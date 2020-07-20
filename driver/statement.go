@@ -5,7 +5,7 @@ import (
 	"context"
 	"database/sql/driver"
 	"errors"
-	"github.com/guypeled76/go-bigquery-driver/adaptor"
+	"github.com/go-gorm/bigquery/adaptor"
 	"github.com/sirupsen/logrus"
 )
 

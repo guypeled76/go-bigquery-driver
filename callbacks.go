@@ -1,7 +1,7 @@
 package bigquery
 
 import (
-	"github.com/guypeled76/go-bigquery-driver/adaptor"
+	"github.com/go-gorm/bigquery/adaptor"
 	"gorm.io/gorm"
 	"gorm.io/gorm/callbacks"
 )
