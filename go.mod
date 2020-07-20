@@ -1,4 +1,4 @@
-module github.com/guypeled76/go-bigquery-driver
+module github.com/go-gorm/bigquery
 
 go 1.14
 

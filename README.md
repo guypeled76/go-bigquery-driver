@@ -16,11 +16,11 @@ via the GOOGLE_APPLICATION_CREDENTIALS environment variable point to your creden
 Just like any other database/sql driver you'll need to import it 
 
 ```go
-package main
+package bigquery
 
 import (
     "database/sql"
-    _ "github.com/guypeled76/go-bigquery-driver/driver"
+    _ "github.com/go-gorm/bigquery/driver"
     "log"
 )
 
@@ -41,10 +41,10 @@ func main() {
 Opening a Gorm bigquery db
 
 ```go
-package main
+package bigquery
 
 import (
-    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "github.com/go-gorm/bigquery"
     "gorm.io/gorm"
     "log"
 )
@@ -65,10 +65,10 @@ func main() {
 Using gorm with a BigQuery query that has a record
 
 ```go
-package main
+package bigquery
 
 import (
-    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "github.com/go-gorm/bigquery"
     "gorm.io/gorm"
     "log"
 )
@@ -112,10 +112,10 @@ func main() {
 Using gorm with a BigQuery query that has an array
 
 ```go
-package main
+package bigquery
 
 import (
-    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "github.com/go-gorm/bigquery"
     "gorm.io/gorm"
     "log"
 )
@@ -158,10 +158,10 @@ func main() {
 Using gorm with a BigQuery query that uses unnest
 
 ```go
-package main
+package bigquery
 
 import (
-    "github.com/guypeled76/go-bigquery-driver/bigquery"
+    "github.com/go-gorm/bigquery"
     "gorm.io/gorm"
     "log"
 )

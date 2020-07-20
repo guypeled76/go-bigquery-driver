@@ -3,7 +3,7 @@ package driver
 import (
 	"cloud.google.com/go/bigquery"
 	"database/sql/driver"
-	"github.com/guypeled76/go-bigquery-driver/adaptor"
+	"github.com/go-gorm/bigquery/adaptor"
 )
 
 type bigQuerySchema interface {

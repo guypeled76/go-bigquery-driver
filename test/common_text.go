@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/guypeled76/go-bigquery-driver/bigquery"
+	"github.com/go-gorm/bigquery"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
